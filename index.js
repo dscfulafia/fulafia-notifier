@@ -1,14 +1,12 @@
 const { Autohook } = require('twitter-autohook');
 let dotenv = require('dotenv').config();
 var fs = require("fs");
-// var Promise = require('promise');
 const axios = require('axios');
 
 function processResponse(event){
   //process incoming events
   var data = event;
-  // console.log(event)
-  var text = data[0].message_create;
+  var text = data[0].message_create || '';
   var message = text.message_data.text
   var courseCode =  message.trim().substring(0,6).toUpperCase();
   var courseRep = text.sender_id;
@@ -21,7 +19,7 @@ function processBroadcast(sender, courseCode, message) {
   var obj = JSON.parse(fs.readFileSync('target.json', 'utf8')); 
 
   // get specific numbers to send to
-  if (obj[sender] != undefined) {
+  if (obj[sender] != undefined || obj[sender] != false) {
 
     //if sender is autorized to send message
     (undefined === obj[sender][courseCode]) ? 
@@ -86,7 +84,6 @@ function displayError(errMsg){
     await webhook.subscribe({oauth_token: dotenv.parsed.TWITTER_ACCESS_TOKEN, oauth_token_secret: dotenv.parsed.TWITTER_ACCESS_TOKEN_SECRET});  
   } catch (e) {
     // Display the error and quit
-    console.error(e);
     process.exit(1);
   }
 })();  
